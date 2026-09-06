@@ -10,6 +10,11 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+  <div class="bg-blobs">
+  <span></span>
+  <span></span>
+  <span></span>
+</div>
   <main class="panel">
     <div class="orb-wrap">
       <div id="orb" class="orb"></div>
@@ -19,9 +24,9 @@
     <p class="tagline">Speak, and he'll listen.</p>
     <ul class="capabilities">
   <li>🔍 Search the web</li>
-  <li>📝 Save a note</li>
-  <li>🌐 Build a page</li>
-  <li>🖼️ Generate an image</li>
+  <li>📝 Do quick maths</li>
+  <li>🌐 Ask me anything</li>
+  <li>🌤️ Check the weather</li>
   <li>😊 and many more!</li>
 </ul>
 
@@ -34,6 +39,7 @@
     <p id="status">Status: idle</p>
 
     <div id="transcript" class="transcript"></div>
+  <p class="credits">Built by Karlene A Greene</p>
   </main>
 
   <script type="module" src="{{ url_for('static', filename='main.js') }}"></script>

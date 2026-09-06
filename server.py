@@ -1,29 +1,23 @@
 import os
 import uuid
-from io import BytesIO
 
-import openai
 import requests
 from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template, request, send_from_directory
-from PIL import Image
 
 load_dotenv()
 
 AGENT_ID = os.getenv("AGENT_ID")
 # Supports either name so it matches your .env either way
 API_KEY = os.getenv("API_KEY") or os.getenv("ELEVENLABS_API_KEY")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SAVED_FILES_DIR = os.path.join(BASE_DIR, "saved_files")
-GENERATED_IMAGES_DIR = os.path.join(BASE_DIR, "generated_images")
 os.makedirs(SAVED_FILES_DIR, exist_ok=True)
-os.makedirs(GENERATED_IMAGES_DIR, exist_ok=True)
 
 app = Flask(__name__)
 
-# Fallback values used only if a visitor leaves the fields blank
+# Fallback value used only if a visitor leaves the name field blank
 USER_NAME = "Alex"
 
 
@@ -53,48 +47,30 @@ def signed_url():
 
     return jsonify(resp.json())
 
+
 @app.route("/api/overrides")
 def overrides():
     """Prompt/first_message override, served to the browser. Accepts
     an optional ?name= so each visitor is greeted by name."""
     name = request.args.get("name", "").strip() or USER_NAME
+
     prompt = (
         "You are Alex, a helpful voice assistant. You can answer general "
-        "questions, search the web, save notes to a text file, create a "
-        "simple web page, and generate images when asked."
+        "questions, chat casually, do quick math, search the web, tell the "
+        "current date and time, check the weather for a place, save notes "
+        "to a text file, and create a simple web page when asked. When you "
+        "use a tool that saves a file, the app already shows the user a "
+        "link to it automatically — just confirm what you made in a "
+        "sentence or two. Don't add disclaimers about being text-based."
     )
     first_message = f"Hello {name}, I'm Alex, your voice assistant. How can I help you today?"
     return jsonify({"prompt": prompt, "first_message": first_message})
 
+
 # ---------------------------------------------------------------------------
-# Client tool endpoints — names/params match exactly what's configured on
-# the ElevenLabs agent (generateimage, createhtmlfile, saveToTxt, searchWeb)
+# Client tool endpoints — names/params must match exactly what's configured
+# on the ElevenLabs agent
 # ---------------------------------------------------------------------------
-@app.route("/api/generateimage", methods=["POST"])
-def generateimage():
-    if not OPENAI_API_KEY:
-        return jsonify({"error": "Server is missing OPENAI_API_KEY"}), 500
-
-    data = request.json or {}
-    prompt = data.get("prompt", "")
-    filename = safe_filename(data.get("filename", "image.png"))
-    size = data.get("size", "1024x1024")
-
-    if not prompt:
-        return jsonify({"error": "Missing prompt"}), 400
-
-    client = openai.OpenAI(api_key=OPENAI_API_KEY)
-    response = client.images.generate(prompt=prompt, model="gpt-image-1", size=size, n=1)
-    image_url = response.data[0].url
-
-    img_response = requests.get(image_url, timeout=30)
-    image = Image.open(BytesIO(img_response.content))
-    path = os.path.join(GENERATED_IMAGES_DIR, filename)
-    image.save(path)
-
-    return jsonify({"result": f"Image saved as {filename}", "url": f"/files/images/{filename}"})
-
-
 @app.route("/api/createhtmlfile", methods=["POST"])
 def createhtmlfile():
     data = request.json or {}
@@ -149,16 +125,49 @@ def searchweb():
     return jsonify({"result": summary})
 
 
+@app.route("/api/weather", methods=["POST"])
+def weather():
+    """Looks up current weather for a place name using Open-Meteo (free, no API key)."""
+    place = (request.json or {}).get("location", "")
+    if not place:
+        return jsonify({"error": "Missing location"}), 400
+
+    geo = requests.get(
+        "https://geocoding-api.open-meteo.com/v1/search",
+        params={"name": place, "count": 1},
+        timeout=15,
+    ).json()
+    results = geo.get("results")
+    if not results:
+        return jsonify({"result": f"I couldn't find a place called {place}."})
+
+    lat, lon = results[0]["latitude"], results[0]["longitude"]
+    found_name = results[0].get("name", place)
+
+    forecast = requests.get(
+        "https://api.open-meteo.com/v1/forecast",
+        params={
+            "latitude": lat,
+            "longitude": lon,
+            "current": "temperature_2m,weather_code",
+            "temperature_unit": "celsius",
+        },
+        timeout=15,
+    ).json()
+    current = forecast.get("current", {})
+    temp = current.get("temperature_2m")
+
+    if temp is None:
+        return jsonify({"result": f"I couldn't get the weather for {found_name} right now."})
+
+    return jsonify({"result": f"It's currently {temp}°C in {found_name}."})
+
+
 @app.route("/files/saved/<path:filename>")
 def get_saved_file(filename):
     return send_from_directory(SAVED_FILES_DIR, filename)
 
 
-@app.route("/files/images/<path:filename>")
-def get_image_file(filename):
-    return send_from_directory(GENERATED_IMAGES_DIR, filename)
-
-
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=True, use_reloader=False)

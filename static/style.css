@@ -79,6 +79,62 @@ body {
   50% { transform: scale(1.08); }
 }
 
+.bg-blobs {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.bg-blobs span {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.35;
+  animation: float 18s ease-in-out infinite;
+}
+
+.bg-blobs span:nth-child(1) {
+  width: 400px;
+  height: 400px;
+  top: -100px;
+  left: -100px;
+  background: #7c3aed; /* violet */
+  animation-duration: 20s;
+}
+
+.bg-blobs span:nth-child(2) {
+  width: 350px;
+  height: 350px;
+  bottom: -80px;
+  right: -80px;
+  background: #4c1d95; /* deep purple */
+  animation-duration: 24s;
+  animation-delay: -6s;
+}
+
+.bg-blobs span:nth-child(3) {
+  width: 300px;
+  height: 300px;
+  top: 40%;
+  left: 60%;
+  background: #a78bfa; /* light purple */
+  animation-duration: 16s;
+  animation-delay: -3s;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(40px, -30px) scale(1.1); }
+  66%      { transform: translate(-30px, 20px) scale(0.95); }
+}
+
+/* make sure your card sits above the blobs */
+.card, #startForm, main {
+  position: relative;
+  z-index: 1;
+}
 h1 {
   font-family: "Fraunces", serif;
   font-weight: 600;
@@ -86,7 +142,11 @@ h1 {
   margin: 0;
   letter-spacing: 0.01em;
 }
-
+.credits {
+  margin: 1.5rem 0 0;
+  font-size: 0.72rem;
+  color: #4a4468;
+}
 .tagline {
   color: var(--muted);
   font-size: 0.9rem;

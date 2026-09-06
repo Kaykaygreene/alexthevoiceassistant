@@ -85,6 +85,5 @@ The assistant supports these tools:
 * **Web search**: `searchWeb(query="your query")`
 * **Save to TXT**: `saveToTxt(filename="file.txt", data="your data")`
 * **Create HTML file**: `createHtmlFile(filename="file.html", data="your content", title="Page Title")`
-* **Generate image**: `generateImage(prompt="image description", filename="image.png")`
 
 ---

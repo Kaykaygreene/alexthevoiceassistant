@@ -28,12 +28,8 @@ async function postJSON(url, body) {
 }
 
 // Keys must exactly match the tool names configured on the ElevenLabs agent
+// Keys must exactly match the tool names configured on the ElevenLabs agent
 const clientTools = {
-  generateimage: async ({ prompt, filename, size }) => {
-    const data = await postJSON("/api/generateimage", { prompt, filename, size });
-    if (data.url) bubble(`🖼️ Image ready: ${window.location.origin}${data.url}`, "agent");
-    return data.result || data.error;
-  },
   createhtmlfile: async ({ title, filename, data: content }) => {
     const data = await postJSON("/api/createhtmlfile", { title, filename, data: content });
     if (data.url) bubble(`🌐 Page ready: ${window.location.origin}${data.url}`, "agent");
@@ -46,6 +42,10 @@ const clientTools = {
   },
   searchWeb: async ({ query }) => {
     const data = await postJSON("/api/searchweb", { query });
+    return data.result || data.error;
+  },
+  weather: async ({ location }) => {
+    const data = await postJSON("/api/weather", { location });
     return data.result || data.error;
   },
 };
