@@ -6,7 +6,6 @@ const stopBtn = document.getElementById("stopBtn");
 const statusEl = document.getElementById("status");
 const transcriptEl = document.getElementById("transcript");
 const nameInput = document.getElementById("nameInput");
-const scheduleInput = document.getElementById("scheduleInput");
 const orb = document.getElementById("orb");
 
 let conversation = null;
@@ -60,10 +59,9 @@ startForm.addEventListener("submit", async (e) => {
     statusEl.textContent = "connecting…";
 
     const name = encodeURIComponent(nameInput.value.trim());
-    const schedule = encodeURIComponent(scheduleInput.value.trim());
     const [signedRes, overridesRes] = await Promise.all([
       fetch("/api/signed-url"),
-      fetch(`/api/overrides?name=${name}&schedule=${schedule}`),
+      fetch(`/api/overrides?name=${name}`),
     ]);
     const signedData = await signedRes.json();
     const overridesData = await overridesRes.json();
@@ -83,7 +81,6 @@ startForm.addEventListener("submit", async (e) => {
         orb.classList.add("connected");
         startBtn.disabled = true;
         nameInput.disabled = true;
-        scheduleInput.disabled = true;
         stopBtn.disabled = false;
       },
       onDisconnect: () => {
@@ -91,7 +88,6 @@ startForm.addEventListener("submit", async (e) => {
         orb.classList.remove("connected");
         startBtn.disabled = false;
         nameInput.disabled = false;
-        scheduleInput.disabled = false;
         stopBtn.disabled = true;
       },
       onMessage: (msg) => bubble(msg.message, msg.source === "ai" ? "agent" : "user"),

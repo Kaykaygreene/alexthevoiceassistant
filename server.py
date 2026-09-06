@@ -25,7 +25,6 @@ app = Flask(__name__)
 
 # Fallback values used only if a visitor leaves the fields blank
 USER_NAME = "Alex"
-SCHEDULE = "Sales Meeting with Taipy at 10:00; Gym with Sophie at 17:00"
 
 
 def safe_filename(filename: str) -> str:
@@ -54,25 +53,18 @@ def signed_url():
 
     return jsonify(resp.json())
 
-
 @app.route("/api/overrides")
 def overrides():
     """Prompt/first_message override, served to the browser. Accepts
-    optional ?name= and ?schedule= so each visitor gets their own."""
+    an optional ?name= so each visitor is greeted by name."""
     name = request.args.get("name", "").strip() or USER_NAME
-    schedule = request.args.get("schedule", "").strip()
-
     prompt = (
         "You are Alex, a helpful voice assistant. You can answer general "
         "questions, search the web, save notes to a text file, create a "
         "simple web page, and generate images when asked."
     )
-    if schedule:
-        prompt += f" Your interlocutor has the following schedule: {schedule}."
-
     first_message = f"Hello {name}, I'm Alex, your voice assistant. How can I help you today?"
     return jsonify({"prompt": prompt, "first_message": first_message})
-
 
 # ---------------------------------------------------------------------------
 # Client tool endpoints — names/params match exactly what's configured on
