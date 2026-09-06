@@ -12,7 +12,7 @@ from elevenlabs.conversational_ai.default_audio_interface import DefaultAudioInt
 from elevenlabs.types import ConversationConfig
 
 user_name = "Karlene"
-schedule = "Sales Meeting with Taipy at 10:00; Gym with Sophie at 17:00"
+schedule = "Assignments to complete for programming classes and to exercise at 17:00"
 prompt = f"You are a helpful assistant. Your interlocutor has the following schedule: {schedule}."
 first_message = f"Hello {user_name} I am Alex, your voice assistant, how can I help you today?"
 
