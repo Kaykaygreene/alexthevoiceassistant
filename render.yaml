@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: alex-voice-assistant
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements-web.txt"
+    startCommand: "gunicorn server:app"
+    envVars:
+      - key: AGENT_ID
+        sync: false
+      - key: API_KEY
+        sync: false

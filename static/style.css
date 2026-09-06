@@ -1,0 +1,42 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0f1115;
+  color: #eee;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+}
+.card {
+  background: #1a1d24;
+  padding: 2.5rem;
+  border-radius: 16px;
+  max-width: 480px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+}
+h1 { margin-top: 0; }
+.subtitle { color: #aaa; font-size: 0.95rem; }
+button {
+  padding: 0.75rem 1.5rem;
+  margin: 0.5rem;
+  border: none;
+  border-radius: 999px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+#startBtn { background: #4f8cff; color: white; }
+#stopBtn { background: #333; color: #ccc; }
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+#status { color: #8f9; font-size: 0.9rem; }
+#transcript {
+  text-align: left;
+  margin-top: 1rem;
+  max-height: 260px;
+  overflow-y: auto;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+#transcript p { margin: 0.3rem 0; }

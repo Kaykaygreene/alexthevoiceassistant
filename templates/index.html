@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alex — Voice Assistant</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="card">
+    <h1>Alex 🎙️</h1>
+    <p class="subtitle">Your AI voice assistant — click start, allow microphone access, and talk.</p>
+
+    <button id="startBtn">Start Conversation</button>
+    <button id="stopBtn" disabled>End Conversation</button>
+
+    <p id="status">Status: idle</p>
+    <div id="transcript"></div>
+  </main>
+
+  <script type="module" src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>
