@@ -1,14 +1,17 @@
 # Alex — AI Voice Assistant
 
-A web-based conversational AI assistant built with **Flask** and the **ElevenLabs Conversational AI SDK**. Alex listens (or reads typed messages), responds with natural-sounding speech, and can call custom backend tools mid-conversation — like searching the web, checking the weather, doing math, or saving generated content to a file.
+A conversational AI assistant built with the **ElevenLabs Conversational AI SDK**, available two ways: as a **web app** (Flask backend + browser UI) or as a **terminal CLI**. Alex listens (or reads typed messages), responds with natural-sounding speech, and can call custom tools mid-conversation — like searching the web, checking the weather, doing math, or saving generated content to a file.
 
 ---
 
 ## Overview
 
-Alex runs as a small web app: a Flask backend serves the page and exposes a set of API routes, and a vanilla JS frontend connects to an ElevenLabs Conversational AI agent over a signed WebSocket session. The agent handles the actual conversation (speech-to-text, language understanding, and text-to-speech), and calls back into the Flask backend whenever it needs to use a tool.
+Alex has two entry points that share the same ElevenLabs agent:
 
-Users can talk to Alex out loud, or switch to a text-based fallback mode. The UI shows a live animated "orb" that reacts while Alex is speaking, plus a scrolling transcript of the conversation.
+- **`server.py` (web app)** — a Flask backend serves a browser UI and exposes a set of API routes. A vanilla JS frontend connects to the ElevenLabs Conversational AI agent over a signed WebSocket session, with a live animated "orb," a scrolling transcript, and a text-mode fallback. The agent calls back into the Flask backend whenever it needs to use a tool (search, weather, calculator, etc.).
+- **`main.py` (CLI)** — a lightweight terminal script that connects to the same agent using the ElevenLabs Python SDK directly, using your machine's microphone and speakers for input/output. It's set up with a hardcoded name and daily schedule baked into the prompt, so it greets you and already knows your day's agenda.
+
+In both cases, the agent itself (speech-to-text, language understanding, text-to-speech) is handled by ElevenLabs Conversational AI — the two scripts are just different front doors into it.
 
 ---
 
@@ -26,6 +29,7 @@ Users can talk to Alex out loud, or switch to a text-based fallback mode. The UI
   - 📄 `saveToTxt` — save text content to a downloadable `.txt` file
   - 🌐 `createhtmlfile` — generate a downloadable HTML page from content
 - Generated files (text/HTML) are saved server-side and linked directly in the chat transcript.
+- **Terminal mode** (`main.py`) — talk to Alex directly through your mic and speakers, no browser needed, with a schedule/context baked into the prompt.
 
 ---
 
@@ -33,9 +37,10 @@ Users can talk to Alex out loud, or switch to a text-based fallback mode. The UI
 
 | Layer | Technology |
 |---|---|
-| Backend | Python, Flask |
-| Frontend | HTML, CSS, vanilla JavaScript (ES modules) |
-| Conversational AI | [ElevenLabs Conversational AI](https://elevenlabs.io/) (`@elevenlabs/client` SDK) |
+| Web backend | Python, Flask |
+| Web frontend | HTML, CSS, vanilla JavaScript (ES modules), `@elevenlabs/client` SDK |
+| CLI | Python, `elevenlabs` SDK (`Conversation`, `DefaultAudioInterface`) |
+| Conversational AI | [ElevenLabs Conversational AI](https://elevenlabs.io/) |
 | Voice | ElevenLabs speech-to-text and text-to-speech, via the agent |
 
 ---
@@ -53,7 +58,8 @@ Users can talk to Alex out loud, or switch to a text-based fallback mode. The UI
 ## Requirements
 
 - Python 3.9+
-- Packages: `flask`, `requests`, `python-dotenv`, `duckduckgo_search`
+- Packages: `flask`, `requests`, `python-dotenv`, `duckduckgo_search`, `elevenlabs` (for the CLI)
+- A working microphone/speakers if running the CLI (`main.py`)
 - An ElevenLabs account with a configured Conversational AI **Agent** (for the Agent ID and prompt/voice setup)
 - ElevenLabs API key
 
@@ -78,7 +84,7 @@ No API key is needed for weather (uses the free [Open-Meteo](https://open-meteo.
 
 3. **Install dependencies**
    ```bash
-   pip install flask requests python-dotenv duckduckgo_search
+   pip install flask requests python-dotenv duckduckgo_search elevenlabs
    ```
    (or `pip install -r requirements.txt` if you've generated one with `pip freeze > requirements.txt`)
 
@@ -93,9 +99,11 @@ No API key is needed for weather (uses the free [Open-Meteo](https://open-meteo.
 
 ## Usage
 
+### Option 1: Web app
+
 1. Start the Flask app:
    ```bash
-   python app.py
+   python server.py
    ```
 2. Open the app in your browser at `http://127.0.0.1:5000` (or the port set by the `PORT` env variable).
 3. Enter your name, choose **🎙️ Voice** or **⌨️ Text** mode, and click **Start**.
@@ -103,15 +111,27 @@ No API key is needed for weather (uses the free [Open-Meteo](https://open-meteo.
 
 Files created by the `saveToTxt` and `createhtmlfile` tools are written to a local `saved_files/` folder and served back at `/files/saved/<filename>`, with a direct link dropped into the transcript.
 
+### Option 2: Terminal CLI
+
+1. Run:
+   ```bash
+   python main.py
+   ```
+2. Alex greets you by name and speaks through your default speakers; reply out loud through your microphone.
+3. Press `Ctrl+C` to end the session.
+
+The CLI's name and schedule/context are currently hardcoded near the top of `main.py` — edit the `user_name` and `schedule` variables there to personalize it.
+
 ---
 
 ## Project Structure
 
 ```
 alexthevoiceassistant/
-├── app.py                 # Flask app: routes + API + tool endpoints
+├── server.py                 # Flask app: routes + API + tool endpoints (web version)
+├── main.py                 # Terminal CLI version (mic + speakers, ElevenLabs Python SDK)
 ├── templates/
-│   └── index.html         # Main page
+│   └── index.html         # Main page (web version)
 ├── static/
 │   ├── main.js             # Frontend logic (ElevenLabs SDK integration)
 │   └── style.css           # Styling
