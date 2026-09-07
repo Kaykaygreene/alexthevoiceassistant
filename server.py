@@ -1,9 +1,12 @@
 import os
 import uuid
+import math
 
 import requests
 from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template, request, send_from_directory
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 load_dotenv()
 
@@ -161,6 +164,37 @@ def weather():
         return jsonify({"result": f"I couldn't get the weather for {found_name} right now."})
 
     return jsonify({"result": f"It's currently {temp}°C in {found_name}."})
+
+
+@app.route("/api/calculator", methods=["POST"])
+def calculator():
+    expression = (request.json or {}).get("expression", "")
+    if not expression:
+        return jsonify({"error": "Missing expression"}), 400
+
+    # Only allow safe characters — no arbitrary code execution
+    allowed = set("0123456789+-*/(). %")
+    if not set(expression) <= allowed:
+        return jsonify({"result": "That expression contains characters I can't safely evaluate."})
+
+    try:
+        result = eval(expression, {"__builtins__": {}}, {})
+        return jsonify({"result": f"{expression} = {result}"})
+    except Exception:
+        return jsonify({"result": f"I couldn't evaluate '{expression}'."})
+
+
+@app.route("/api/gettime", methods=["POST"])
+def gettime():
+    tz_name = (request.json or {}).get("timezone", "America/Port_of_Spain")
+    try:
+        tz = ZoneInfo(tz_name)
+    except Exception:
+        tz = ZoneInfo("America/Port_of_Spain")
+
+    now = datetime.now(tz)
+    formatted = now.strftime("%A, %B %d, %Y at %I:%M %p (%Z)")
+    return jsonify({"result": formatted})
 
 
 @app.route("/files/saved/<path:filename>")

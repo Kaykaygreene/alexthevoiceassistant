@@ -11,10 +11,10 @@
 </head>
 <body>
   <div class="bg-blobs">
-  <span></span>
-  <span></span>
-  <span></span>
-</div>
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
   <main class="panel">
     <div class="orb-wrap">
       <div id="orb" class="orb"></div>
@@ -23,23 +23,38 @@
     <h1>Alex</h1>
     <p class="tagline">Speak, and he'll listen.</p>
     <ul class="capabilities">
-  <li>🔍 Search the web</li>
-  <li>📝 Do quick maths</li>
-  <li>🌐 Ask me anything</li>
-  <li>🌤️ Check the weather</li>
-  <li>😊 and many more!</li>
-</ul>
+      <li>🔍 Search the web</li>
+      <li>📝 Do quick maths</li>
+      <li>🌐 Ask me anything</li>
+      <li>🌤️ Check the weather</li>
+      <li>😊 and many more!</li>
+    </ul>
 
-    <form id="startForm" class="control-row">
-<input id="nameInput" type="text" placeholder="Your name (optional)" autocomplete="off" spellcheck="false" />      <button id="startBtn" type="submit">Start</button>
+    <form id="startForm">
+      <input type="text" id="nameInput" placeholder="Your name (optional)" />
+      <p class="hint">Enter your name, then press Start</p>
+
+      <div id="modeSection" class="mode-section hidden">
+        <div class="mode-row">
+          <div class="mode-toggle">
+            <button type="button" id="voiceModeBtn" class="mode-btn active">🎙️ Voice</button>
+            <button type="button" id="textModeBtn" class="mode-btn">⌨️ Text</button>
+          </div>
+          <button type="submit" id="startBtn">Start</button>
+        </div>
+      </div>
     </form>
 
-    <button id="stopBtn" type="button" disabled>End conversation</button>
+    <div id="textFallback" style="display: none;">
+      <input type="text" id="textInput" placeholder="Type a message..." />
+      <button id="textSendBtn">Send</button>
+    </div>
 
+    <button id="stopBtn" disabled>End conversation</button>
     <p id="status">Status: idle</p>
 
     <div id="transcript" class="transcript"></div>
-  <p class="credits">Built by Karlene A Greene</p>
+    <p class="credits">Built by Karlene A Greene</p>
   </main>
 
   <script type="module" src="{{ url_for('static', filename='main.js') }}"></script>

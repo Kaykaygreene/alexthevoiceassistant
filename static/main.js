@@ -7,8 +7,22 @@ const statusEl = document.getElementById("status");
 const transcriptEl = document.getElementById("transcript");
 const nameInput = document.getElementById("nameInput");
 const orb = document.getElementById("orb");
+const voiceModeBtn = document.getElementById("voiceModeBtn");
+const textModeBtn = document.getElementById("textModeBtn");
+const textFallback = document.getElementById("textFallback");
+const textInput = document.getElementById("textInput");
+const textSendBtn = document.getElementById("textSendBtn");
+const modeSection = document.getElementById("modeSection");
 
 let conversation = null;
+let mode = "voice";
+
+function setMode(newMode) {
+  mode = newMode;
+  voiceModeBtn.classList.toggle("active", mode === "voice");
+  textModeBtn.classList.toggle("active", mode === "text");
+  textFallback.style.display = mode === "text" ? "flex" : "none";
+}
 
 function bubble(text, who) {
   const div = document.createElement("div");
@@ -27,7 +41,29 @@ async function postJSON(url, body) {
   return res.json();
 }
 
-// Keys must exactly match the tool names configured on the ElevenLabs agent
+async function sendTextMessage() {
+  const text = textInput.value.trim();
+  if (!text || !conversation) return;
+  bubble(text, "user");
+  textInput.value = "";
+  try {
+    await conversation.sendUserMessage(text);
+  } catch (err) {
+    console.error(err);
+    bubble("⚠️ Message failed — the session may have disconnected.", "agent");
+  }
+}
+
+voiceModeBtn.addEventListener("click", () => setMode("voice"));
+textModeBtn.addEventListener("click", () => setMode("text"));
+textSendBtn.addEventListener("click", sendTextMessage);
+textInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") sendTextMessage();
+});
+nameInput.addEventListener("focus", () => {
+  modeSection.classList.remove("hidden");
+}, { once: true });
+
 // Keys must exactly match the tool names configured on the ElevenLabs agent
 const clientTools = {
   createhtmlfile: async ({ title, filename, data: content }) => {
@@ -38,6 +74,14 @@ const clientTools = {
   saveToTxt: async ({ filename, data: content }) => {
     const data = await postJSON("/api/savetotxt", { filename, data: content });
     if (data.url) bubble(`📄 Saved: ${window.location.origin}${data.url}`, "agent");
+    return data.result || data.error;
+  },
+  calculator: async ({ expression }) => {
+    const data = await postJSON("/api/calculator", { expression });
+    return data.result || data.error;
+  },
+  getTime: async ({ timezone }) => {
+    const data = await postJSON("/api/gettime", { timezone });
     return data.result || data.error;
   },
   searchWeb: async ({ query }) => {
@@ -53,8 +97,10 @@ const clientTools = {
 startForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   try {
-    statusEl.textContent = "requesting microphone…";
-    await navigator.mediaDevices.getUserMedia({ audio: true });
+    if (mode === "voice") {
+      statusEl.textContent = "requesting microphone…";
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+    }
 
     statusEl.textContent = "connecting…";
 
@@ -75,6 +121,9 @@ startForm.addEventListener("submit", async (e) => {
           prompt: { prompt: overridesData.prompt },
           firstMessage: overridesData.first_message,
         },
+        conversation: {
+          textOnly: mode === "text",
+        },
       },
       onConnect: () => {
         statusEl.textContent = "connected";
@@ -89,6 +138,7 @@ startForm.addEventListener("submit", async (e) => {
         startBtn.disabled = false;
         nameInput.disabled = false;
         stopBtn.disabled = true;
+        conversation = null;
       },
       onMessage: (msg) => bubble(msg.message, msg.source === "ai" ? "agent" : "user"),
       onError: (err) => {

@@ -22,7 +22,42 @@ body {
   margin: 0;
   padding: 1.5rem;
 }
+#textFallback {
+  display: flex;
+  border: 1px solid var(--panel-edge);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 0.75rem;
+}
 
+#textInput {
+  flex: 1;
+  min-width: 0;
+  padding: 0.7rem 1.1rem;
+  border: none;
+  background: #0e0b1a;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.92rem;
+}
+
+#textInput::placeholder { color: #635c7e; }
+#textInput:focus { outline: none; box-shadow: inset 0 0 0 2px var(--accent); }
+
+#textSendBtn {
+  border: none;
+  padding: 0.7rem 1.4rem;
+  background: var(--accent);
+  color: #1e1233;
+  font-weight: 600;
+  font-family: inherit;
+  font-size: 0.92rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+#textSendBtn:hover { background: #b79dff; }
+#textSendBtn:focus-visible { outline: 2px solid var(--text); outline-offset: -3px; }
 .panel {
   background: var(--panel);
   border: 1px solid var(--panel-edge);
@@ -46,6 +81,26 @@ body {
   background: radial-gradient(circle at 35% 30%, #3a3060, var(--ring) 70%);
   box-shadow: 0 0 0 1px var(--panel-edge);
   transition: box-shadow 0.4s ease, background 0.4s ease;
+}
+.hint {
+  color: var(--muted);
+  font-size: 0.78rem;
+  margin: 0.4rem 0 0.75rem;
+}
+
+.mode-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mode-toggle {
+  flex: 1;
+  margin-bottom: 0; /* was margin-bottom: 12px on .mode-toggle before */
+}
+
+#startBtn {
+  flex-shrink: 0;
 }
 .capabilities {
   list-style: none;
@@ -135,6 +190,37 @@ body {
   position: relative;
   z-index: 1;
 }
+.mode-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.mode-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+.mode-btn.active {
+  background: #7c3aed;
+  border-color: #7c3aed;
+}
+.mode-section {
+  margin-top: 12px;
+  opacity: 1;
+  max-height: 200px;
+  transition: opacity 0.3s ease, max-height 0.3s ease;
+  overflow: hidden;
+}
+.mode-section.hidden {
+  opacity: 0;
+  max-height: 0;
+  margin-top: 0;
+  pointer-events: none;
+}
 h1 {
   font-family: "Fraunces", serif;
   font-weight: 600;
@@ -152,20 +238,12 @@ h1 {
   font-size: 0.9rem;
   margin: 0.4rem 0 1rem;
 }
-
-.control-row {
-  display: flex;
-  border: 1px solid var(--panel-edge);
-  border-radius: 999px;
-  overflow: hidden;
-  background: #14102400;
-}
 #nameInput {
   flex: 1;
   min-width: 0;
   padding: 0.7rem 1.1rem;
   border: none;
-  border-radius: 999px 0 0 999px;
+  border-radius: 999px;
   background: #0e0b1a;
   color: var(--text);
   font-family: inherit;
@@ -177,7 +255,7 @@ h1 {
 
 #startBtn {
   border: none;
-  border-radius: 0 999px 999px 0;
+  border-radius: 999px;
   padding: 0.7rem 1.4rem;
   background: var(--accent);
   color: #1e1233;
