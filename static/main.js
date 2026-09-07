@@ -16,20 +16,39 @@ const modeSection = document.getElementById("modeSection");
 
 let conversation = null;
 let mode = "voice";
-
+let hasGreeted = false;
+let currentAgentBubble = null; 
 function setMode(newMode) {
   mode = newMode;
   voiceModeBtn.classList.toggle("active", mode === "voice");
   textModeBtn.classList.toggle("active", mode === "text");
-  textFallback.style.display = mode === "text" ? "flex" : "none";
 }
-
 function bubble(text, who) {
   const div = document.createElement("div");
   div.className = `bubble ${who}`;
-  div.textContent = text;
+
+  if (who === "agent") {
+    const icon = document.createElement("span");
+    icon.className = "speaker-icon";
+    icon.textContent = "🔊";
+    div.appendChild(icon);
+    currentAgentBubble = div;
+  }
+
+  const textNode = document.createElement("span");
+  textNode.textContent = text;
+  div.appendChild(textNode);
+
   transcriptEl.appendChild(div);
   transcriptEl.scrollTop = transcriptEl.scrollHeight;
+}
+
+function setSpeaking(isSpeaking) {
+  orb.classList.toggle("speaking", isSpeaking);
+  statusEl.textContent = isSpeaking ? "Alex is speaking…" : "connected";
+  if (currentAgentBubble) {
+    currentAgentBubble.classList.toggle("speaking", isSpeaking);
+  }
 }
 
 async function postJSON(url, body) {
@@ -121,26 +140,43 @@ startForm.addEventListener("submit", async (e) => {
           prompt: { prompt: overridesData.prompt },
           firstMessage: overridesData.first_message,
         },
-        conversation: {
-          textOnly: mode === "text",
-        },
+        
       },
-      onConnect: () => {
-        statusEl.textContent = "connected";
-        orb.classList.add("connected");
-        startBtn.disabled = true;
-        nameInput.disabled = true;
-        stopBtn.disabled = false;
-      },
-      onDisconnect: () => {
-        statusEl.textContent = "idle";
-        orb.classList.remove("connected");
-        startBtn.disabled = false;
-        nameInput.disabled = false;
-        stopBtn.disabled = true;
-        conversation = null;
-      },
-      onMessage: (msg) => bubble(msg.message, msg.source === "ai" ? "agent" : "user"),
+onConnect: () => {
+  hasGreeted = false;
+    currentAgentBubble = null; 
+  statusEl.textContent = "Alex is speaking…";
+  orb.classList.add("connected", "speaking");
+  startBtn.disabled = true;
+  nameInput.disabled = true;
+  stopBtn.disabled = false;
+  textInput.disabled = true;
+  textSendBtn.disabled = true;
+},
+onDisconnect: () => {
+  statusEl.textContent = "idle";
+  orb.classList.remove("connected", "speaking");
+  startBtn.disabled = false;
+  nameInput.disabled = false;
+  stopBtn.disabled = true;
+  textInput.disabled = true;
+  textSendBtn.disabled = true;
+  textFallback.style.display = "none";
+  hasGreeted = false;
+  conversation = null;
+},
+onMessage: (msg) => {
+  bubble(msg.message, msg.source === "ai" ? "agent" : "user");
+  if (msg.source === "ai" && !hasGreeted) {
+    hasGreeted = true;
+    setSpeaking(false);
+    textInput.disabled = false;
+    textSendBtn.disabled = false;
+    if (mode === "text") {
+      textFallback.style.display = "flex";
+    }
+  }
+},
       onError: (err) => {
         console.error(err);
         statusEl.textContent = "error (see console)";

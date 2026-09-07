@@ -94,14 +94,9 @@ body {
   gap: 8px;
 }
 
-.mode-toggle {
-  flex: 1;
-  margin-bottom: 0; /* was margin-bottom: 12px on .mode-toggle before */
-}
 
-#startBtn {
-  flex-shrink: 0;
-}
+
+
 .capabilities {
   list-style: none;
   display: flex;
@@ -190,24 +185,8 @@ body {
   position: relative;
   z-index: 1;
 }
-.mode-toggle {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.mode-btn {
-  flex: 1;
-  padding: 8px;
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.2);
-  background: transparent;
-  color: #fff;
-  cursor: pointer;
-}
-.mode-btn.active {
-  background: #7c3aed;
-  border-color: #7c3aed;
-}
+
+
 .mode-section {
   margin-top: 12px;
   opacity: 1;
@@ -253,7 +232,63 @@ h1 {
 #nameInput::placeholder { color: #635c7e; }
 #nameInput:focus { outline: none; box-shadow: inset 0 0 0 2px var(--accent); }
 
+.mode-toggle {
+  display: flex;
+  flex: 1;
+  gap: 8px;
+  margin-bottom: 0;
+}
+.mode-btn {
+  flex: 1;
+  padding: 0.7rem 1.1rem;   /* match startBtn's height */
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: transparent;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+.mode-btn.active { background: #7c3aed; border-color: #7c3aed; }
+.orb.speaking {
+  animation: pulse-speak 1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orb.speaking { animation: none; }
+}
+
+@keyframes pulse-speak {
+  0%, 100% { box-shadow: 0 0 40px 6px rgba(157, 123, 255, 0.45); }
+  50%      { box-shadow: 0 0 60px 14px rgba(157, 123, 255, 0.75); }
+}
+.bubble.agent {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.speaker-icon {
+  font-size: 0.85rem;
+  opacity: 0.35;
+  flex-shrink: 0;
+}
+
+.bubble.agent.speaking .speaker-icon {
+  opacity: 1;
+  animation: icon-pulse 0.9s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bubble.agent.speaking .speaker-icon { animation: none; opacity: 1; }
+}
+
+@keyframes icon-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.25); }
+}
 #startBtn {
+  flex-shrink: 0;
   border: none;
   border-radius: 999px;
   padding: 0.7rem 1.4rem;
@@ -265,7 +300,6 @@ h1 {
   cursor: pointer;
   white-space: nowrap;
 }
-
 #startBtn:hover { background: #b79dff; }
 #startBtn:focus-visible { outline: 2px solid var(--text); outline-offset: -3px; }
 
