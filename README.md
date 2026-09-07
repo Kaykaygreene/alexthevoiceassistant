@@ -74,7 +74,7 @@ python main.py
 
 Speak into your microphone. The assistant will respond with ElevenLabs-generated speech.
 
-* Say **exit** to quit the program.
+* Say **exit** or click **End Conversation** to quit the program.
 
 ---
 
